@@ -86,6 +86,11 @@ PYTHONPATH=. streamlit run app.py
 
 ---
 
+### 3. Netlify (Static Hosting)
+The project is deployed to Netlify as a static site. `index.html` loads the Streamlit app in the browser using [stlite](https://github.com/whitphx/stlite) (Streamlit on Pyodide), so no Python server is needed. The SQLite database lives in the browser's memory and is re-seeded on every page load, so triage updates and injected anomalies do not persist between visits. The first load takes a little longer while the Python runtime downloads.
+
+---
+
 ## 🧪 Demonstration Walkthrough
 
 1. Open `http://localhost:8501` in your browser.

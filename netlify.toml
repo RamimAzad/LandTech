@@ -1,0 +1,5 @@
+# JomiGuard is served as a static site: index.html boots the Streamlit app
+# in the browser with stlite, fetching the Python sources from this directory.
+[build]
+  publish = "."
+  command = ""

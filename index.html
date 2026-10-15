@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>JomiGuard — Land Fraud &amp; Double-Selling Alert System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/stlite.css" />
+  </head>
+  <body>
+    <!--
+      The Streamlit dashboard runs entirely in the browser via stlite (Pyodide),
+      so it can be served as a static site on Netlify. The SQLite database lives
+      in the browser's in-memory file system and is re-seeded on each page load.
+    -->
+    <div id="root"></div>
+    <script type="module">
+      import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@1.11.0/build/stlite.js";
+
+      const sourceFiles = [
+        "app.py",
+        "core/__init__.py",
+        "core/db.py",
+        "core/detector.py",
+        "core/models.py",
+        "core/reporter.py",
+        "data/__init__.py",
+        "data/generator.py",
+        "data/schema.sql",
+      ];
+
+      mount(
+        {
+          requirements: ["pandas", "plotly", "sqlite3"],
+          entrypoint: "app.py",
+          files: Object.fromEntries(sourceFiles.map((path) => [path, { url: `./${path}` }])),
+          streamlitConfig: { "client.toolbarMode": "viewer" },
+        },
+        document.getElementById("root"),
+      );
+    </script>
+  </body>
+</html>
