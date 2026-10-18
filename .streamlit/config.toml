@@ -1,3 +1,12 @@
+[server]
+headless = true
+address = "0.0.0.0"
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false
+
 [theme]
 primaryColor = "#1B6B50"
 backgroundColor = "#F8FAFC"
