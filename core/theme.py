@@ -663,21 +663,21 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
     }}
 
     /* Main Content Headers */
-    .main-header {
+    .main-header {{
         font-size: 1.85rem !important;
         font-weight: 850 !important;
         color: var(--jg-brand) !important;
         letter-spacing: -0.02em !important;
         margin-bottom: 6px !important;
         line-height: 1.25 !important;
-    }
-    .sub-header {
+    }}
+    .sub-header {{
         font-size: 0.98rem !important;
         color: var(--jg-ink-secondary) !important;
         margin-bottom: 1.2rem !important;
         line-height: 1.6 !important;
-    }
-    .section-title {
+    }}
+    .section-title {{
         font-size: 1.25rem !important;
         font-weight: 750 !important;
         color: var(--jg-ink) !important;
@@ -685,15 +685,15 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         display: flex !important;
         align-items: center !important;
         gap: 8px !important;
-    }
+    }}
 
     /* Universal Streamlit Typography & Text Contrast Overrides */
-    h1, h2, h3, h4, h5, h6 {
+    h1, h2, h3, h4, h5, h6 {{
         color: var(--jg-ink) !important;
-    }
-    p, span, label, li, ul, ol {
+    }}
+    p, span, label, li, ul, ol {{
         color: var(--jg-ink);
-    }
+    }}
     [data-testid="stMarkdownContainer"] p,
     [data-testid="stMarkdownContainer"] span,
     [data-testid="stMarkdownContainer"] li,
@@ -702,48 +702,48 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
     [data-testid="stMarkdownContainer"] h3,
     [data-testid="stMarkdownContainer"] h4,
     [data-testid="stMarkdownContainer"] h5,
-    [data-testid="stMarkdownContainer"] h6 {
+    [data-testid="stMarkdownContainer"] h6 {{
         color: var(--jg-ink) !important;
-    }
+    }}
     [data-testid="stCaptionContainer"],
-    [data-testid="stCaptionContainer"] p {
+    [data-testid="stCaptionContainer"] p {{
         color: var(--jg-muted) !important;
-    }
+    }}
 
     /* Streamlit Sidebar Overrides */
-    [data-testid="stSidebar"] {
+    [data-testid="stSidebar"] {{
         background-color: var(--jg-sidebar-bg) !important;
         border-right: 1px solid var(--jg-sidebar-border) !important;
-    }
-    [data-testid="stSidebar"] * {
+    }}
+    [data-testid="stSidebar"] * {{
         color: var(--jg-sidebar-text);
-    }
+    }}
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] span,
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div,
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h5,
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] label {
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] label {{
         color: var(--jg-sidebar-text) !important;
-    }
+    }}
     [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
-    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {{
         color: var(--jg-sidebar-muted) !important;
-    }
-    [data-testid="stSidebar"] hr {
+    }}
+    [data-testid="stSidebar"] hr {{
         border-color: var(--jg-sidebar-border) !important;
-    }
+    }}
 
     /* Animated, Responsive, Full-Width Sidebar Navigation Cards */
     [class*="st-key-sidebar_nav_"],
     [data-testid="stSidebar"] div[data-testid="stButton"],
     [data-testid="stSidebar"] div.stButton,
     [data-testid="stSidebar"] div[data-testid="stButton"] > button,
-    [data-testid="stSidebar"] div.stButton > button {
+    [data-testid="stSidebar"] div.stButton > button {{
         width: 100% !important;
-    }
+    }}
     [class*="st-key-sidebar_nav_"] button,
     [data-testid="stSidebar"] div[data-testid="stButton"] > button,
-    [data-testid="stSidebar"] div.stButton > button {
+    [data-testid="stSidebar"] div.stButton > button {{
         display: flex !important;
         align-items: center !important;
         justify-content: flex-start !important;
@@ -763,19 +763,19 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         position: relative !important;
         overflow: hidden !important;
         letter-spacing: -0.01em !important;
-    }
+    }}
     [class*="st-key-sidebar_nav_"] button p,
     [class*="st-key-sidebar_nav_"] button span,
     [data-testid="stSidebar"] div[data-testid="stButton"] > button p,
     [data-testid="stSidebar"] div[data-testid="stButton"] > button span,
     [data-testid="stSidebar"] div.stButton > button p,
-    [data-testid="stSidebar"] div.stButton > button span {
+    [data-testid="stSidebar"] div.stButton > button span {{
         color: inherit !important;
         font-size: inherit !important;
         font-weight: inherit !important;
         cursor: pointer !important;
         user-select: none !important;
-    }
+    }}
 
     /* Hover State for Inactive Navigation Tabs */
     [class*="st-key-sidebar_nav_"] button[kind="secondary"]:hover,
@@ -784,13 +784,13 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
     [data-testid="stSidebar"] div[data-testid="stButton"] > button[kind="secondary"]:hover,
     [data-testid="stSidebar"] div[data-testid="stButton"] > button[data-testid="baseButton-secondary"]:hover,
     [data-testid="stSidebar"] div.stButton > button[kind="secondary"]:hover,
-    [data-testid="stSidebar"] div.stButton > button[data-testid="baseButton-secondary"]:hover {
+    [data-testid="stSidebar"] div.stButton > button[data-testid="baseButton-secondary"]:hover {{
         transform: translateX(6px) !important;
         background: var(--jg-surface-hover) !important;
         color: var(--jg-accent) !important;
         border-color: var(--jg-accent) !important;
         box-shadow: 0 4px 16px rgba(16, 185, 129, 0.18) !important;
-    }
+    }}
 
     /* Active Navigation Card (Prominent Emerald Ribbon) */
     [class*="st-key-sidebar_nav_"] button[kind="primary"],
@@ -799,7 +799,7 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
     [data-testid="stSidebar"] div[data-testid="stButton"] > button[kind="primary"],
     [data-testid="stSidebar"] div[data-testid="stButton"] > button[data-testid="baseButton-primary"],
     [data-testid="stSidebar"] div.stButton > button[kind="primary"],
-    [data-testid="stSidebar"] div.stButton > button[data-testid="baseButton-primary"] {
+    [data-testid="stSidebar"] div.stButton > button[data-testid="baseButton-primary"] {{
         background: linear-gradient(135deg, var(--jg-brand) 0%, #155E44 100%) !important;
         color: #FFFFFF !important;
         border: 1.5px solid var(--jg-accent) !important;
@@ -807,7 +807,7 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         box-shadow: 0 4px 14px rgba(15, 61, 46, 0.35) !important;
         font-weight: 750 !important;
         transform: translateX(3px) !important;
-    }
+    }}
     [class*="st-key-sidebar_nav_"] button[kind="primary"] p,
     [class*="st-key-sidebar_nav_"] button[kind="primary"] span,
     [class*="st-key-sidebar_nav_"] button[data-testid="baseButton-primary"] p,
@@ -817,17 +817,17 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
     [data-testid="stSidebar"] div[data-testid="stButton"] > button[kind="primary"] p,
     [data-testid="stSidebar"] div[data-testid="stButton"] > button[kind="primary"] span,
     [data-testid="stSidebar"] div.stButton > button[kind="primary"] p,
-    [data-testid="stSidebar"] div.stButton > button[kind="primary"] span {
+    [data-testid="stSidebar"] div.stButton > button[kind="primary"] span {{
         color: #FFFFFF !important;
-    }
+    }}
     [class*="st-key-sidebar_nav_"] button:active,
     [data-testid="stSidebar"] div[data-testid="stButton"] > button:active,
-    [data-testid="stSidebar"] div.stButton > button:active {
+    [data-testid="stSidebar"] div.stButton > button:active {{
         transform: scale(0.98) !important;
-    }
+    }}
 
     /* Buttons Override (General) */
-    .stButton > button {
+    .stButton > button {{
         border-radius: 10px !important;
         font-weight: 650 !important;
         transition: all 0.18s ease !important;
@@ -835,29 +835,29 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         background: var(--jg-surface) !important;
         color: var(--jg-ink) !important;
         border: 1px solid var(--jg-border) !important;
-    }
-    .stButton > button:hover {
+    }}
+    .stButton > button:hover {{
         background: var(--jg-surface-hover) !important;
         color: var(--jg-accent) !important;
         border-color: var(--jg-accent) !important;
-    }
+    }}
     .stButton > button[kind="primary"],
-    .stButton > button[data-testid="baseButton-primary"] {
+    .stButton > button[data-testid="baseButton-primary"] {{
         background: var(--jg-accent) !important;
         border-color: var(--jg-accent) !important;
         color: #FFFFFF !important;
         box-shadow: 0 2px 8px rgba(27, 107, 80, 0.25) !important;
-    }
+    }}
     .stButton > button[kind="primary"]:hover,
-    .stButton > button[data-testid="baseButton-primary"]:hover {
+    .stButton > button[data-testid="baseButton-primary"]:hover {{
         background: var(--jg-accent-hover) !important;
         border-color: var(--jg-accent-hover) !important;
         transform: translateY(-1px);
         box-shadow: 0 4px 14px rgba(27, 107, 80, 0.35) !important;
-    }
+    }}
 
     /* Streamlit Radio Overrides (if used elsewhere) */
-    [data-testid="stRadio"] div[role="radiogroup"] > label {
+    [data-testid="stRadio"] div[role="radiogroup"] > label {{
         display: flex !important;
         align-items: center !important;
         width: 100% !important;
@@ -868,125 +868,125 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         border: 1px solid var(--jg-border) !important;
         cursor: pointer !important;
         transition: all 0.2s ease !important;
-    }
-    [data-testid="stRadio"] div[role="radiogroup"] > label:hover {
+    }}
+    [data-testid="stRadio"] div[role="radiogroup"] > label:hover {{
         background: var(--jg-surface-hover) !important;
         border-color: var(--jg-accent) !important;
         transform: translateX(4px) !important;
-    }
+    }}
     [data-testid="stRadio"] div[role="radiogroup"] > label p,
-    [data-testid="stRadio"] div[role="radiogroup"] > label span {
+    [data-testid="stRadio"] div[role="radiogroup"] > label span {{
         color: var(--jg-ink) !important;
         font-weight: 600 !important;
         cursor: pointer !important;
-    }
+    }}
 
     /* Streamlit Expander Overrides */
-    [data-testid="stExpander"] {
+    [data-testid="stExpander"] {{
         background: var(--jg-surface) !important;
         border: 1px solid var(--jg-border) !important;
         border-radius: var(--jg-radius) !important;
         box-shadow: var(--jg-shadow-sm) !important;
         margin-bottom: 12px !important;
-    }
-    [data-testid="stExpander"] summary {
+    }}
+    [data-testid="stExpander"] summary {{
         background: var(--jg-surface) !important;
         color: var(--jg-ink) !important;
         font-weight: 650 !important;
         border-radius: var(--jg-radius) !important;
-    }
-    [data-testid="stExpander"] summary:hover {
+    }}
+    [data-testid="stExpander"] summary:hover {{
         background: var(--jg-surface-hover) !important;
         color: var(--jg-accent) !important;
-    }
+    }}
     [data-testid="stExpander"] summary p,
     [data-testid="stExpander"] summary span,
-    [data-testid="stExpander"] summary svg {
+    [data-testid="stExpander"] summary svg {{
         color: var(--jg-ink) !important;
         fill: var(--jg-ink) !important;
-    }
-    [data-testid="stExpanderDetails"] {
+    }}
+    [data-testid="stExpanderDetails"] {{
         background: var(--jg-surface) !important;
         color: var(--jg-ink) !important;
         border-top: 1px solid var(--jg-border-subtle) !important;
-    }
+    }}
 
     /* Selectbox, Inputs & Popovers */
     [data-testid="stSelectbox"] label,
     [data-testid="stMultiSelect"] label,
     [data-testid="stTextInput"] label,
-    [data-testid="stNumberInput"] label {
+    [data-testid="stNumberInput"] label {{
         color: var(--jg-ink) !important;
         font-weight: 600 !important;
-    }
-    div[data-baseweb="select"] > div {
+    }}
+    div[data-baseweb="select"] > div {{
         background-color: var(--jg-surface) !important;
         border-color: var(--jg-border) !important;
         color: var(--jg-ink) !important;
-    }
+    }}
     div[data-baseweb="select"] span,
     div[data-baseweb="select"] div,
-    div[data-baseweb="select"] input {
+    div[data-baseweb="select"] input {{
         color: var(--jg-ink) !important;
-    }
+    }}
     div[data-baseweb="popover"],
-    ul[role="listbox"] {
+    ul[role="listbox"] {{
         background-color: var(--jg-surface) !important;
         border: 1px solid var(--jg-border) !important;
-    }
-    li[role="option"] {
+    }}
+    li[role="option"] {{
         color: var(--jg-ink) !important;
         background-color: var(--jg-surface) !important;
-    }
+    }}
     li[role="option"]:hover,
-    li[role="option"][aria-selected="true"] {
+    li[role="option"][aria-selected="true"] {{
         background-color: var(--jg-surface-hover) !important;
         color: var(--jg-accent) !important;
-    }
+    }}
 
     /* Segmented Control */
-    div[data-testid="stSegmentedControl"] {
+    div[data-testid="stSegmentedControl"] {{
         background: var(--jg-surface) !important;
         border: 1px solid var(--jg-border) !important;
         border-radius: 10px !important;
-    }
-    div[data-testid="stSegmentedControl"] button {
+    }}
+    div[data-testid="stSegmentedControl"] button {{
         color: var(--jg-ink) !important;
-    }
+    }}
     div[data-testid="stSegmentedControl"] button p,
-    div[data-testid="stSegmentedControl"] button span {
+    div[data-testid="stSegmentedControl"] button span {{
         color: var(--jg-ink) !important;
-    }
+    }}
 
     /* Tabs Override */
-    [data-baseweb="tab-list"] {
+    [data-baseweb="tab-list"] {{
         background: var(--jg-surface-subtle) !important;
         border-radius: 10px !important;
         padding: 4px !important;
         border: 1px solid var(--jg-border) !important;
-    }
-    button[data-baseweb="tab"] {
+    }}
+    button[data-baseweb="tab"] {{
         color: var(--jg-muted) !important;
         font-weight: 600 !important;
         border-radius: 8px !important;
-    }
-    button[data-baseweb="tab"][aria-selected="true"] {
+    }}
+    button[data-baseweb="tab"][aria-selected="true"] {{
         background: var(--jg-surface) !important;
         color: var(--jg-accent) !important;
         font-weight: 750 !important;
         box-shadow: var(--jg-shadow-sm) !important;
-    }
+    }}
 
     /* DataFrames & Tables */
-    [data-testid="stDataFrame"], [data-testid="stTable"] {
+    [data-testid="stDataFrame"], [data-testid="stTable"] {{
         background: var(--jg-surface) !important;
         border: 1px solid var(--jg-border) !important;
         border-radius: var(--jg-radius) !important;
         color: var(--jg-ink) !important;
-    }
+    }}
 
     /* Top Application Bar (Inside Main App) */
-    .app-topbar {
+    .app-topbar {{
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -996,10 +996,10 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         padding: 10px 16px;
         margin-bottom: 1.4rem;
         box-shadow: var(--jg-shadow-sm);
-    }
+    }}
 
     /* KPI Cards */
-    .kpi-card {
+    .kpi-card {{
         background: var(--jg-surface);
         border: 1px solid var(--jg-border);
         border-radius: var(--jg-radius);
@@ -1007,33 +1007,33 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         box-shadow: var(--jg-shadow);
         height: 100%;
         transition: transform 0.15s ease;
-    }
-    .kpi-card:hover {
+    }}
+    .kpi-card:hover {{
         transform: translateY(-2px);
-    }
-    .kpi-label {
+    }}
+    .kpi-label {{
         font-size: 0.78rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.04em;
         color: var(--jg-muted) !important;
         margin-bottom: 6px;
-    }
-    .kpi-value {
+    }}
+    .kpi-value {{
         font-size: 1.85rem;
         font-weight: 800;
         color: var(--jg-brand) !important;
         line-height: 1.1;
         font-family: 'JetBrains Mono', 'Hind Siliguri', sans-serif;
-    }
-    .kpi-foot {
+    }}
+    .kpi-foot {{
         font-size: 0.8rem;
         color: var(--jg-muted) !important;
         margin-top: 6px;
-    }
+    }}
 
     /* Badges (High Contrast in both Light and Dark Mode) */
-    .badge-critical {
+    .badge-critical {{
         background: var(--jg-alert-high-bg) !important;
         color: var(--jg-alert-high-text) !important;
         border: 1px solid var(--jg-alert-high-border) !important;
@@ -1043,8 +1043,8 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         font-size: 0.74rem;
         letter-spacing: 0.03em;
         text-transform: uppercase;
-    }
-    .badge-high {
+    }}
+    .badge-high {{
         background: var(--jg-alert-med-bg) !important;
         color: #F97316 !important;
         border: 1px solid #EA580C !important;
@@ -1054,8 +1054,8 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         font-size: 0.74rem;
         letter-spacing: 0.03em;
         text-transform: uppercase;
-    }
-    .badge-medium {
+    }}
+    .badge-medium {{
         background: var(--jg-alert-med-bg) !important;
         color: var(--jg-alert-med-text) !important;
         border: 1px solid var(--jg-alert-med-border) !important;
@@ -1065,8 +1065,8 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         font-size: 0.74rem;
         letter-spacing: 0.03em;
         text-transform: uppercase;
-    }
-    .badge-low {
+    }}
+    .badge-low {{
         background: rgba(37, 99, 235, 0.18) !important;
         color: #60A5FA !important;
         border: 1px solid #3B82F6 !important;
@@ -1076,10 +1076,10 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         font-size: 0.74rem;
         letter-spacing: 0.03em;
         text-transform: uppercase;
-    }
+    }}
 
     /* Timeline Legend and Items */
-    .tl-legend {
+    .tl-legend {{
         display: flex;
         flex-direction: column;
         gap: 8px;
@@ -1089,8 +1089,8 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         border-radius: 12px;
         padding: 14px 18px;
         box-shadow: var(--jg-shadow-sm);
-    }
-    .tl-item {
+    }}
+    .tl-item {{
         display: flex;
         align-items: center;
         gap: 12px;
@@ -1098,20 +1098,20 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         color: var(--jg-ink);
         padding: 4px 0;
         border-bottom: 1px solid var(--jg-border-subtle);
-    }
-    .tl-item:last-child {
+    }}
+    .tl-item:last-child {{
         border-bottom: none;
-    }
-    .tl-dot {
+    }}
+    .tl-dot {{
         width: 12px;
         height: 12px;
         border-radius: 50%;
         flex-shrink: 0;
-    }
-    .tl-event {
+    }}
+    .tl-event {{
         color: var(--jg-ink) !important;
         font-weight: 600;
         flex: 1;
-    }
+    }}
     </style>
     """
