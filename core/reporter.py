@@ -7,6 +7,7 @@ from datetime import datetime
 import json
 from typing import Dict, List, Any
 import pandas as pd
+from core.models import mask_nid, mask_nids_in_text
 
 
 _FIELD_LABELS = {
@@ -83,12 +84,16 @@ def _format_trigger_table(trigger_fields: Dict[str, Any]) -> str:
     lines = ["| Triggered Field | Value |", "| :--- | :--- |"]
     for key, value in trigger_fields.items():
         label = _FIELD_LABELS.get(key, str(key).replace("_", " ").title())
-        lines.append(f"| {label} | `{_format_trigger_value(value)}` |")
+        if any(k in key.lower() for k in ["nid"]):
+            formatted_val = mask_nid(value)
+        else:
+            formatted_val = _format_trigger_value(value)
+        lines.append(f"| {label} | `{formatted_val}` |")
     return "\n".join(lines) + "\n"
 
 
 def export_alerts_to_csv(alerts_df: pd.DataFrame) -> str:
-    """Converts alerts dataframe to CSV string for download."""
+    """Converts alerts dataframe to CSV string for download with masked NIDs."""
     if alerts_df.empty:
         return "alert_id,rule_id,rule_name,plot_id,severity,title,explanation,triage_status,reviewer_notes,created_at\n"
         
@@ -96,6 +101,8 @@ def export_alerts_to_csv(alerts_df: pd.DataFrame) -> str:
         "alert_id", "rule_id", "rule_name", "plot_id", "severity",
         "title", "explanation", "triage_status", "reviewer_notes", "created_at"
     ]].copy()
+    if "explanation" in export_df.columns:
+        export_df["explanation"] = export_df["explanation"].apply(mask_nids_in_text)
     
     return export_df.to_csv(index=False)
 
@@ -190,7 +197,7 @@ def generate_markdown_audit_report(
 - **Auditor Notes:** _{notes if notes else 'No notes entered'}_
 
 **Explainable Rationale:**  
-{explanation}
+{mask_nids_in_text(explanation)}
 
 **Specific Trigger Fields:**
 

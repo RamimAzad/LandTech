@@ -42,7 +42,7 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         --jg-sidebar-bg: #FFFFFF;
         --jg-sidebar-border: #E2E8F0;
         --jg-sidebar-text: #1E293B;
-        --jg-sidebar-muted: #64748B;
+        --jg-sidebar-muted: #334155;
         --jg-sidebar-item-hover: #F0FDF4;
         --jg-sidebar-item-active: #DCFCE7;
 
@@ -117,7 +117,7 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
         --jg-sidebar-bg: #0B111E;
         --jg-sidebar-border: #1E293B;
         --jg-sidebar-text: #F8FAFC;
-        --jg-sidebar-muted: #94A3B8;
+        --jg-sidebar-muted: #CBD5E1;
         --jg-sidebar-item-hover: rgba(16, 185, 129, 0.14);
         --jg-sidebar-item-active: rgba(16, 185, 129, 0.24);
 
@@ -720,7 +720,7 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
     }}
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] span,
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div,
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div:not(.sidebar-brand-card):not(.sidebar-brand-title):not(.sidebar-brand-tagline),
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h5,
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] label {{
         color: var(--jg-sidebar-text) !important;
@@ -728,9 +728,125 @@ def get_theme_css(theme_mode: str = "Auto (System)") -> str:
     [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
     [data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {{
         color: var(--jg-sidebar-muted) !important;
+        font-size: 0.84rem !important;
+        font-weight: 600 !important;
+        line-height: 1.45 !important;
     }}
     [data-testid="stSidebar"] hr {{
         border-color: var(--jg-sidebar-border) !important;
+    }}
+
+    /* Sidebar Brand Header Card - High Contrast Guarantee */
+    .sidebar-brand-card {{
+        background: linear-gradient(135deg, #0A3324 0%, #16533D 100%) !important;
+        border-radius: 14px !important;
+        padding: 16px 18px !important;
+        margin-bottom: 12px !important;
+        box-shadow: 0 4px 16px rgba(10, 51, 36, 0.35) !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+    }}
+
+    .sidebar-brand-card,
+    .sidebar-brand-card *,
+    .sidebar-brand-title,
+    .sidebar-brand-tagline,
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] .sidebar-brand-card,
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] .sidebar-brand-card div,
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] .sidebar-brand-card span,
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] .sidebar-brand-card p {{
+        color: #FFFFFF !important;
+    }}
+
+    .sidebar-brand-title {{
+        font-size: 1.35rem !important;
+        font-weight: 850 !important;
+        color: #FFFFFF !important;
+        letter-spacing: -0.02em !important;
+        line-height: 1.25 !important;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }}
+
+    .sidebar-brand-tagline {{
+        font-size: 0.85rem !important;
+        color: #E2E8F0 !important;
+        font-weight: 500 !important;
+        line-height: 1.45 !important;
+        margin-top: 5px !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+        opacity: 0.95 !important;
+    }}
+
+    /* Streamlit Sidebar Collapse Toggle & Navigation Arrow (Visible in BOTH Light & Night Mode) */
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarCollapseButton"] button,
+    [data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] button,
+    [data-testid="stSidebarHeader"] button,
+    button[kind="header"],
+    button[data-testid="baseButton-header"],
+    [data-testid="stSidebarHeader"] [data-testid="baseButton-header"] {{
+        background: var(--jg-surface) !important;
+        color: var(--jg-ink) !important;
+        border: 1.5px solid var(--jg-border) !important;
+        border-radius: 8px !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        max-width: 36px !important;
+        max-height: 36px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: var(--jg-shadow-sm) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        cursor: pointer !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        z-index: 100 !important;
+    }}
+
+    [data-testid="stSidebarCollapseButton"] button:hover,
+    [data-testid="collapsedControl"] button:hover,
+    [data-testid="stSidebarHeader"] button:hover,
+    button[kind="header"]:hover,
+    button[data-testid="baseButton-header"]:hover {{
+        background: var(--jg-surface-hover) !important;
+        border-color: var(--jg-accent) !important;
+        transform: scale(1.06) !important;
+        box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3) !important;
+    }}
+
+    /* The SVG Arrow Chevron inside the collapse button */
+    [data-testid="stSidebarCollapseButton"] svg,
+    [data-testid="stSidebarCollapseButton"] button svg,
+    [data-testid="collapsedControl"] svg,
+    [data-testid="collapsedControl"] button svg,
+    [data-testid="stSidebarHeader"] svg,
+    [data-testid="stSidebarHeader"] button svg,
+    button[kind="header"] svg,
+    button[data-testid="baseButton-header"] svg {{
+        fill: var(--jg-ink) !important;
+        stroke: var(--jg-ink) !important;
+        color: var(--jg-ink) !important;
+        width: 20px !important;
+        height: 20px !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: block !important;
+    }}
+
+    [data-testid="stSidebarCollapseButton"] button:hover svg,
+    [data-testid="collapsedControl"] button:hover svg,
+    [data-testid="stSidebarHeader"] button:hover svg,
+    button[kind="header"]:hover svg,
+    button[data-testid="baseButton-header"]:hover svg {{
+        fill: var(--jg-accent) !important;
+        stroke: var(--jg-accent) !important;
+        color: var(--jg-accent) !important;
     }}
 
     /* Animated, Responsive, Full-Width Sidebar Navigation Cards */

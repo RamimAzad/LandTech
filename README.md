@@ -1,6 +1,6 @@
 # 🛡️ JomiGuard (জমিগার্ড) — Land Title Audit & Anomaly Detection Platform
 
-> **National Civic RegTech & Institutional Record Verification System**<br>
+> **National Civic RegTech & Institutional Record Verification System**  
 > Real-time cross-matching of Sub-Registry deed registrations and AC Land e-mutations with mathematical parcel integrity verification, explainable evidence diffing, and automated fraud prevention.
 
 ---
@@ -15,7 +15,7 @@ Because these systems historically operated without real-time bilateral verifica
 
 **JomiGuard (জমিগার্ড)** bridges this administrative divide. It provides an institutional-grade, explainable screening engine that detects conflicting transactions, flags anomalous record pairs, maps chronological chains of title, and empowers human officers (Sub-Registrars, AC Land officers, bank credit auditors, and property buyers) to make informed administrative determinations.
 
-> ℹ️ **Guiding Principle — Decision-Support, Not Defamation**:<br>
+> ℹ️ **Guiding Principle — Decision-Support, Not Defamation**:  
 > *An alert indicates a potential record inconsistency requiring human administrative verification, not proven criminal fraud.* Repeated plot identifiers or area variances can result from legitimate co-owner inheritance shares, survey corrections, or pending mutation rectifications.
 
 ---
@@ -284,5 +284,5 @@ JomiGuard is designed strictly as an **administrative decision-support system**.
 
 ## 📄 License & Credits
 
-Developed for the **Bangladesh National Land Record & Title Protection Initiative**.
+Developed for the **Bangladesh National Land Record & Title Protection Initiative**.  
 All rights reserved © 2026 JomiGuard.

@@ -14,7 +14,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-from core.models import SeverityLevel, TriageStatus
+from core.models import SeverityLevel, TriageStatus, mask_nid, mask_nids_in_text
 from core.db import (
     init_db_if_needed,
     get_all_plots,
@@ -81,6 +81,14 @@ if "tab" in st.query_params:
     st.session_state["active_nav_app"] = tab_map.get(raw_tab, raw_tab)
 if "lang" in st.query_params:
     st.session_state["lang"] = st.query_params["lang"]
+if "theme" in st.query_params:
+    raw_th = str(st.query_params["theme"]).strip().lower()
+    if raw_th in ("dark", "night"):
+        st.session_state["user_theme_mode"] = "Dark"
+    elif raw_th in ("light", "day"):
+        st.session_state["user_theme_mode"] = "Light"
+    elif raw_th in ("auto", "system"):
+        st.session_state["user_theme_mode"] = "Auto (System)"
 
 
 # Initialize Database & Engine
@@ -191,9 +199,17 @@ def pretty_value(value, key: str = "", cur_lang: str = "bn") -> str:
     if value is None or value == "":
         return '<span style="color:var(--jg-muted); font-style:italic;">—</span>'
     
-    val_str = str(value)
-    # Check if this is an identifier field (plot_id, deed_no, mutation_case_no, NID)
-    is_id_field = any(k in key.lower() for k in ["plot_id", "deed", "mutation", "nid", "khatian", "dag"])
+    val_str = str(value).strip()
+    if val_str.endswith(".0") and "nid" in key.lower():
+        val_str = val_str[:-2]
+        
+    is_nid_field = any(k in key.lower() for k in ["nid"])
+    if is_nid_field:
+        masked = mask_nid(val_str)
+        return f'<span class="mono-id">{html.escape(masked)}</span>'
+
+    # Check if this is an identifier field (plot_id, deed_no, mutation_case_no, khatian, dag)
+    is_id_field = any(k in key.lower() for k in ["plot_id", "deed", "mutation", "khatian", "dag"])
     is_num_field = isinstance(value, (int, float)) or any(k in key.lower() for k in ["area", "decimal", "value", "balance", "excess", "days"])
     
     if is_id_field:
@@ -1057,7 +1073,7 @@ def render_alerts_view(cur_lang: str = "bn"):
             pid = row["plot_id"]
             r_name = row["rule_name"]
             title = row["title"]
-            explanation = row["explanation"]
+            explanation = mask_nids_in_text(row["explanation"])
             status = row["triage_status"]
             notes = row["reviewer_notes"] or ""
 
@@ -1167,7 +1183,7 @@ def render_plot_history_view(cur_lang: str = "bn"):
 
     search_query = st.text_input(
         t("select_plot_label", cur_lang),
-        placeholder="e.g. P-201, 2401, RS-410, Fatema Begum, or 19782619827361234"
+        placeholder="e.g. P-201, 2401, RS-410, Fatema Begum, or NID ...234"
     )
 
     plots_df = get_all_plots(DEFAULT_DB_PATH)
@@ -1224,7 +1240,7 @@ def render_plot_history_view(cur_lang: str = "bn"):
             <div class="kpi-card">
                 <div class="kpi-label">{t("plot_meta_owner", cur_lang)}</div>
                 <div style="font-weight:750; font-size:1.15rem; color:var(--jg-ink);">{plot_info['initial_owner_name']}</div>
-                <div class="kpi-foot"><span class="mono-id">{plot_info['initial_owner_nid']}</span></div>
+                <div class="kpi-foot"><span class="mono-id">{mask_nid(plot_info['initial_owner_nid'])}</span></div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1366,12 +1382,20 @@ def render_plot_history_view(cur_lang: str = "bn"):
             if deeds_df.empty:
                 st.info("No deeds registered for this plot.")
             else:
+                deeds_display = deeds_df.copy()
+                if "seller_nid" in deeds_display.columns:
+                    deeds_display["seller_nid"] = deeds_display["seller_nid"].apply(mask_nid)
+                if "buyer_nid" in deeds_display.columns:
+                    deeds_display["buyer_nid"] = deeds_display["buyer_nid"].apply(mask_nid)
+
                 if cur_lang == "bn":
                     deed_cols = {
                         "deed_no": st.column_config.TextColumn("দলিল নং"),
                         "registration_date": st.column_config.TextColumn("রেজিস্ট্রেশনের তারিখ"),
                         "seller_name": st.column_config.TextColumn("বিক্রেতার নাম"),
+                        "seller_nid": st.column_config.TextColumn("বিক্রেতার এনআইডি"),
                         "buyer_name": st.column_config.TextColumn("ক্রেতার নাম"),
+                        "buyer_nid": st.column_config.TextColumn("ক্রেতার এনআইডি"),
                         "transferred_area_decimals": st.column_config.NumberColumn(
                             "আয়তন (শতাংশ)", format="%.2f শতাংশ"
                         ),
@@ -1384,7 +1408,9 @@ def render_plot_history_view(cur_lang: str = "bn"):
                         "deed_no": st.column_config.TextColumn("Deed No"),
                         "registration_date": st.column_config.TextColumn("Reg. Date"),
                         "seller_name": st.column_config.TextColumn("Seller Name"),
+                        "seller_nid": st.column_config.TextColumn("Seller NID"),
                         "buyer_name": st.column_config.TextColumn("Buyer Name"),
+                        "buyer_nid": st.column_config.TextColumn("Buyer NID"),
                         "transferred_area_decimals": st.column_config.NumberColumn(
                             "Area (dec)", format="%.2f dec"
                         ),
@@ -1393,9 +1419,9 @@ def render_plot_history_view(cur_lang: str = "bn"):
                         ),
                     }
                 st.dataframe(
-                    deeds_df[[
-                        "deed_no", "registration_date", "seller_name", "buyer_name",
-                        "transferred_area_decimals", "deed_value_bdt"
+                    deeds_display[[
+                        "deed_no", "registration_date", "seller_name", "seller_nid",
+                        "buyer_name", "buyer_nid", "transferred_area_decimals", "deed_value_bdt"
                     ]],
                     use_container_width=True,
                     column_config=deed_cols,
@@ -1406,12 +1432,17 @@ def render_plot_history_view(cur_lang: str = "bn"):
             if mutations_df.empty:
                 st.info("No mutations approved for this plot.")
             else:
+                mutations_display = mutations_df.copy()
+                if "applicant_nid" in mutations_display.columns:
+                    mutations_display["applicant_nid"] = mutations_display["applicant_nid"].apply(mask_nid)
+
                 if cur_lang == "bn":
                     mut_cols = {
                         "mutation_case_no": st.column_config.TextColumn("নামজারি কেস নং"),
                         "deed_no": st.column_config.TextColumn("রেফারেন্স দলিল"),
                         "mutation_date": st.column_config.TextColumn("অনুমোদনের তারিখ"),
                         "applicant_name": st.column_config.TextColumn("আবেদনকারী"),
+                        "applicant_nid": st.column_config.TextColumn("আবেদনকারীর এনআইডি"),
                         "mutated_area_decimals": st.column_config.NumberColumn(
                             "অনুমোদিত আয়তন", format="%.2f শতাংশ"
                         ),
@@ -1424,6 +1455,7 @@ def render_plot_history_view(cur_lang: str = "bn"):
                         "deed_no": st.column_config.TextColumn("Cited Deed No"),
                         "mutation_date": st.column_config.TextColumn("Approval Date"),
                         "applicant_name": st.column_config.TextColumn("Applicant Name"),
+                        "applicant_nid": st.column_config.TextColumn("Applicant NID"),
                         "mutated_area_decimals": st.column_config.NumberColumn(
                             "Mutated Area (dec)", format="%.2f dec"
                         ),
@@ -1431,9 +1463,9 @@ def render_plot_history_view(cur_lang: str = "bn"):
                         "status": st.column_config.TextColumn("Status"),
                     }
                 st.dataframe(
-                    mutations_df[[
+                    mutations_display[[
                         "mutation_case_no", "deed_no", "mutation_date", "applicant_name",
-                        "mutated_area_decimals", "new_khatian_no", "status"
+                        "applicant_nid", "mutated_area_decimals", "new_khatian_no", "status"
                     ]],
                     use_container_width=True,
                     column_config=mut_cols,
@@ -1545,7 +1577,7 @@ def render_sandbox_view(cur_lang: str = "bn"):
         target_deed_id = st.selectbox("Select Deed", options=deeds_df["deed_no"].tolist()[:10], key="inj_deed_id")
         selected_deed_id = deeds_df[deeds_df["deed_no"] == target_deed_id].iloc[0]
 
-        st.write(f"**Registered Buyer:** {selected_deed_id['buyer_name']} (NID: {selected_deed_id['buyer_nid']})")
+        st.write(f"**Registered Buyer:** {selected_deed_id['buyer_name']} (NID: {mask_nid(selected_deed_id['buyer_nid'])})")
 
         impostor_name = st.text_input("Mismatched Applicant Name", value="Akramuzzaman Khan", key="inj_imp_name")
         impostor_nid = st.text_input("Mismatched Applicant NID", value="19652619827361777", key="inj_imp_nid")
@@ -1629,9 +1661,9 @@ def render_main_application(cur_lang: str = "bn"):
 
     with st.sidebar:
         st.markdown(f"""
-        <div style="background:linear-gradient(135deg, var(--jg-brand) 0%, #155E44 100%); border-radius:14px; padding:16px; color:#FFFFFF; margin-bottom:12px; box-shadow:var(--jg-shadow);">
-            <div style="font-size:1.35rem; font-weight:850; letter-spacing:-0.02em;">{t("sidebar_brand", cur_lang)}</div>
-            <div style="font-size:0.82rem; color:rgba(255,255,255,0.85);">{t("sidebar_tagline", cur_lang)}</div>
+        <div class="sidebar-brand-card">
+            <div class="sidebar-brand-title">{t("sidebar_brand", cur_lang)}</div>
+            <div class="sidebar-brand-tagline">{t("sidebar_tagline", cur_lang)}</div>
         </div>
         """, unsafe_allow_html=True)
 

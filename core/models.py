@@ -5,6 +5,7 @@ from dataclasses import dataclass, field, asdict
 from typing import Dict, Any, Optional, List
 from enum import Enum
 import json
+import re
 
 
 class SeverityLevel(str, Enum):
@@ -86,3 +87,55 @@ class AnomalyAlert:
 
     def evidence_json(self) -> str:
         return json.dumps(self.evidence, ensure_ascii=False)
+
+
+def mask_nid(nid_val: Any) -> str:
+    """
+    Mask NID number with (*) keeping only the last 3 digits.
+    Example: 19852619827361234 -> **************234
+    """
+    if nid_val is None:
+        return "—"
+    s = str(nid_val).strip()
+    if not s or s in ("—", "None", "nan", "null"):
+        return "—"
+    if "*" in s:
+        return s
+    if s.endswith(".0"):
+        s = s[:-2]
+    if len(s) <= 3:
+        return s
+    return ("*" * (len(s) - 3)) + s[-3:]
+
+
+def mask_nids_in_text(text: str) -> str:
+    """
+    Mask all 10 to 17-digit NID sequences in narrative text with (*), keeping last 3 digits.
+    Protects citizen PII in alert explanations, incident logs, and evidence descriptions.
+    """
+    if not text or not isinstance(text, str):
+        return text
+
+    def _repl_explicit(m):
+        prefix = m.group(1)
+        raw_num = m.group(2)
+        masked = mask_nid(raw_num)
+        return f"{prefix}{masked}"
+
+    # Handle explicit prefixes like "NID: 1985...", "এনআইডি: ১৯...", "nid: 123..."
+    text = re.sub(
+        r'((?:NID|এনআইডি|nid)\s*[:：]?\s*)([\d০-৯]{4,22})',
+        _repl_explicit,
+        text,
+        flags=re.IGNORECASE
+    )
+
+    def _repl_digits(m):
+        digits = m.group(1)
+        if len(digits) >= 10:
+            return mask_nid(digits)
+        return digits
+
+    # Handle standalone 10 to 18 digit sequences (standard NID numbers)
+    text = re.sub(r'\b([\d০-৯]{10,18})\b', _repl_digits, text)
+    return text
