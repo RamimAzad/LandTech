@@ -3,6 +3,7 @@ JomiGuard — Land Fraud & Double-Selling Alert System
 Streamlit Dashboard Application
 """
 
+import html
 import json
 from datetime import datetime
 import streamlit as st
@@ -40,78 +41,686 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Styling
+# Custom Styling — modern, clean design system
 st.markdown("""
 <style>
+    :root {
+        --jg-bg: #F7F8FC;
+        --jg-surface: #FFFFFF;
+        --jg-ink: #0F172A;
+        --jg-muted: #64748B;
+        --jg-border: #E6E9F0;
+        --jg-primary: #4F46E5;
+        --jg-primary-soft: #EEF0FF;
+        --jg-radius: 14px;
+        --jg-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
+    }
+
+    html, body, [class*="css"] {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: var(--jg-ink);
+    }
+
+    .stApp {
+        background: var(--jg-bg);
+    }
+
+    /* Blend Streamlit's fixed top bar with the page so there is no seam */
+    [data-testid="stAppViewContainer"] {
+        background: var(--jg-bg);
+    }
+    [data-testid="stHeader"] {
+        background: transparent;
+        backdrop-filter: none;
+        box-shadow: none;
+        border-bottom: none;
+    }
+    [data-testid="stDecoration"] {
+        display: none;
+    }
+
+    /* Tighten default vertical rhythm */
+    .block-container {
+        padding-top: 2.6rem;
+        padding-bottom: 3rem;
+        max-width: 1400px;
+    }
+    [data-testid="stVerticalBlock"] > [style*="flex-direction: column"] > [data-testid="stVerticalBlockBorderWrapper"] {
+        border-radius: var(--jg-radius);
+    }
+
+    /* ---------- Headers ---------- */
     .main-header {
-        font-size: 2.1rem;
-        font-weight: 700;
-        color: #1E293B;
-        margin-bottom: 0.2rem;
+        font-size: 1.9rem;
+        font-weight: 750;
+        letter-spacing: -0.02em;
+        color: var(--jg-ink);
+        margin-bottom: 0.15rem;
+        line-height: 1.2;
     }
     .sub-header {
-        font-size: 1.05rem;
-        color: #64748B;
-        margin-bottom: 1.2rem;
+        font-size: 1rem;
+        color: var(--jg-muted);
+        margin-bottom: 1.4rem;
     }
+
+    /* ---------- Notice / disclaimer ---------- */
     .disclaimer-card {
-        background-color: #FEF3C7;
-        border-left: 5px solid #F59E0B;
-        padding: 12px 16px;
-        border-radius: 6px;
-        color: #92400E;
-        font-size: 0.95rem;
-        margin-bottom: 1.2rem;
+        background: #FFFBEB;
+        border: 1px solid #FDE68A;
+        border-left: 4px solid #F59E0B;
+        padding: 14px 18px;
+        border-radius: 12px;
+        color: #78350F;
+        font-size: 0.92rem;
+        line-height: 1.55;
+        margin-bottom: 1.4rem;
     }
-    .metric-card {
-        background: #F8FAFC;
-        border: 1px solid #E2E8F0;
-        border-radius: 8px;
-        padding: 16px;
-        text-align: center;
+
+    /* ---------- Claim / KPI cards ---------- */
+    .kpi-card {
+        background: var(--jg-surface);
+        border: 1px solid var(--jg-border);
+        border-radius: var(--jg-radius);
+        padding: 18px 18px 16px;
+        box-shadow: var(--jg-shadow);
+        height: 100%;
     }
-    .badge-critical {
-        background-color: #FEE2E2;
-        color: #991B1B;
-        padding: 3px 8px;
-        border-radius: 4px;
+    .kpi-label {
+        font-size: 0.78rem;
         font-weight: 600;
-        font-size: 0.82rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--jg-muted);
+        margin-bottom: 6px;
     }
-    .badge-high {
-        background-color: #FFEDD5;
-        color: #9A3412;
-        padding: 3px 8px;
-        border-radius: 4px;
+    .kpi-value {
+        font-size: 1.75rem;
+        font-weight: 750;
+        letter-spacing: -0.02em;
+        color: var(--jg-ink);
+        line-height: 1.1;
+    }
+    .kpi-foot {
+        font-size: 0.8rem;
+        color: var(--jg-muted);
+        margin-top: 6px;
+    }
+
+    /* ---------- Plot record cards ---------- */
+    .record-card {
+        background: var(--jg-surface);
+        border: 1px solid var(--jg-border);
+        border-radius: var(--jg-radius);
+        padding: 16px 18px;
+        box-shadow: var(--jg-shadow);
+        height: 100%;
+    }
+    .record-label {
+        font-size: 0.74rem;
         font-weight: 600;
-        font-size: 0.82rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--jg-muted);
+        margin-bottom: 4px;
     }
-    .badge-medium {
-        background-color: #FEF9C3;
-        color: #854D0E;
-        padding: 3px 8px;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.82rem;
+    .record-value {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--jg-ink);
+        word-break: break-word;
     }
-    .badge-low {
-        background-color: #E0F2FE;
-        color: #075985;
-        padding: 3px 8px;
-        border-radius: 4px;
-        font-weight: 600;
+    .record-foot {
         font-size: 0.82rem;
+        color: var(--jg-muted);
+        margin-top: 4px;
     }
+
+    /* ---------- Severity pills ---------- */
+    .badge-critical, .badge-high, .badge-medium, .badge-low {
+        display: inline-block;
+        padding: 3px 11px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.72rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        line-height: 1.6;
+    }
+    .badge-critical { background: #FEE2E2; color: #B91C1C; }
+    .badge-high     { background: #FFEDD5; color: #C2410C; }
+    .badge-medium   { background: #FEF3C7; color: #B45309; }
+    .badge-low      { background: #E0E7FF; color: #4338CA; }
+
+    /* ---------- Trigger / evidence box ---------- */
     .trigger-box {
-        background-color: #F1F5F9;
-        border-left: 4px solid #3B82F6;
-        padding: 12px;
-        border-radius: 4px;
-        margin-top: 8px;
-        margin-bottom: 8px;
+        background: var(--jg-primary-soft);
+        border: 1px solid #DDE1FF;
+        border-left: 4px solid var(--jg-primary);
+        padding: 12px 14px;
+        border-radius: 10px;
+        margin: 8px 0;
+    }
+
+    /* ---------- Trigger field fact grid ---------- */
+    .tf-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+        margin: 6px 0 4px;
+    }
+    .tf-item {
+        background: #FFFFFF;
+        border: 1px solid var(--jg-border);
+        border-left: 3px solid #CBD5E1;
+        border-radius: 10px;
+        padding: 10px 13px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+    .tf-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--jg-muted);
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .tf-value {
+        font-size: 0.92rem;
+        font-weight: 650;
+        color: var(--jg-ink);
+        word-break: break-word;
+        font-variant-numeric: tabular-nums;
+    }
+    .tf-item.tf-flag { border-left-color: #DC2626; background: #FEF2F2; }
+    .tf-item.tf-flag .tf-value { color: #B91C1C; }
+    .tf-item.tf-ok { border-left-color: #16A34A; background: #F0FDF4; }
+    .tf-item.tf-ok .tf-value { color: #15803D; }
+    .tf-item.tf-warn { border-left-color: #F59E0B; background: #FFFBEB; }
+    .tf-item.tf-warn .tf-value { color: #B45309; }
+
+    /* ---------- Timeline event legend ---------- */
+    .tl-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin: 4px 0 8px;
+    }
+    .tl-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #FFFFFF;
+        border: 1px solid var(--jg-border);
+        border-radius: 10px;
+        padding: 9px 14px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+    .tl-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex: 0 0 auto;
+    }
+    .tl-idx {
+        flex: 0 0 auto;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--jg-primary-soft);
+        color: #4338CA;
+        font-size: 0.72rem;
+        font-weight: 750;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .tl-date {
+        flex: 0 0 auto;
+        font-size: 0.8rem;
+        color: var(--jg-muted);
+        font-variant-numeric: tabular-nums;
+        min-width: 92px;
+    }
+    .tl-event {
+        font-size: 0.9rem;
+        color: var(--jg-ink);
+        font-weight: 500;
+    }
+
+    /* ---------- Record comparison table ---------- */
+    .cmp-table {
+        border: 1px solid var(--jg-border);
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--jg-surface);
+        box-shadow: var(--jg-shadow);
+        margin: 4px 0 8px;
+    }
+    .cmp-table .cmp-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 1.6fr 1.6fr;
+    }
+    .cmp-table.single .cmp-grid {
+        grid-template-columns: 1.1fr 1fr;
+    }
+    .cmp-table .cmp-head > div {
+        padding: 11px 16px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--jg-muted);
+        background: #F8FAFC;
+        border-bottom: 1px solid var(--jg-border);
+    }
+    .cmp-table .cmp-head > div.cmp-col-left::before {
+        content: "";
+        display: inline-block;
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: #94A3B8;
+        margin-right: 8px;
+    }
+    .cmp-table .cmp-head > div.cmp-col-right::before {
+        content: "";
+        display: inline-block;
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: var(--jg-primary);
+        margin-right: 8px;
+    }
+    .cmp-table .cmp-row { display: contents; }
+    .cmp-table .cmp-field,
+    .cmp-table .cmp-cell {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #F1F5F9;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .cmp-table .cmp-field {
+        color: var(--jg-muted);
+        font-weight: 600;
+        background: #FCFCFE;
+    }
+    .cmp-table .cmp-cell {
+        color: var(--jg-ink);
+        font-weight: 500;
+        word-break: break-word;
+    }
+    .cmp-table .cmp-row:last-child .cmp-field,
+    .cmp-table .cmp-row:last-child .cmp-cell {
+        border-bottom: none;
+    }
+    .cmp-table .cmp-row.is-diff .cmp-field {
+        background: #FFF7ED;
+        color: #9A3412;
+        font-weight: 700;
+    }
+    .cmp-table .cmp-row.is-diff .cmp-field::before {
+        content: "!";
+        flex: 0 0 auto;
+        width: 16px; height: 16px;
+        border-radius: 50%;
+        background: #F59E0B;
+        color: #FFFFFF;
+        font-size: 0.66rem;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .cmp-table .cmp-row.is-diff .cmp-cell {
+        background: #FFFDF8;
+        color: #7C2D12;
+        font-weight: 700;
+    }
+    .cmp-table .cmp-row.is-diff .cmp-cell.cmp-shifted {
+        box-shadow: inset 0 0 0 9999px #FFF7ED;
+    }
+    .cmp-empty { color: #CBD5E1; font-weight: 400; font-style: italic; }
+    .cmp-legend {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin: 6px 0 10px;
+        font-size: 0.8rem;
+        color: var(--jg-muted);
+    }
+    .cmp-legend .dot {
+        display: inline-block;
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+
+    /* ---------- Metrics (native st.metric) ---------- */
+    [data-testid="stMetric"] {
+        background: var(--jg-surface);
+        border: 1px solid var(--jg-border);
+        border-radius: var(--jg-radius);
+        padding: 16px 18px;
+        box-shadow: var(--jg-shadow);
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--jg-muted) !important;
+    }
+    [data-testid="stMetricValue"] {
+        font-size: 1.55rem !important;
+        font-weight: 750 !important;
+        letter-spacing: -0.02em;
+        color: var(--jg-ink) !important;
+    }
+
+    /* ---------- Buttons ---------- */
+    .stButton > button, .stDownloadButton > button {
+        border-radius: 10px;
+        border: 1px solid var(--jg-border);
+        font-weight: 600;
+        transition: all 0.15s ease;
+    }
+    .stButton > button:hover, .stDownloadButton > button:hover {
+        border-color: var(--jg-primary);
+        color: var(--jg-primary);
+        transform: translateY(-1px);
+    }
+    .stButton > button[kind="primary"], .stDownloadButton > button[kind="primary"] {
+        background: var(--jg-primary);
+        border-color: var(--jg-primary);
+    }
+    .stButton > button[kind="primary"]:hover, .stDownloadButton > button[kind="primary"]:hover {
+        background: #4338CA;
+        color: #FFFFFF;
+    }
+
+    /* ---------- Expanders / containers / dataframes ---------- */
+    [data-testid="stExpander"] {
+        border: 1px solid var(--jg-border);
+        border-radius: 12px;
+        background: var(--jg-surface);
+        box-shadow: var(--jg-shadow);
+        overflow: hidden;
+    }
+    [data-testid="stExpander"] summary {
+        font-weight: 600;
+    }
+    [data-testid="stDataFrame"], [data-testid="stTable"] {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--jg-border);
+    }
+    div[data-testid="stAlert"] {
+        border-radius: 12px;
+    }
+
+    /* ---------- Tabs ---------- */
+    [data-testid="stTabs"] [data-baseweb="tab-list"] {
+        gap: 6px;
+        border-bottom: 1px solid var(--jg-border);
+    }
+    [data-testid="stTabs"] [data-baseweb="tab"] {
+        border-radius: 10px 10px 0 0;
+        padding: 8px 16px;
+        font-weight: 600;
+    }
+    [data-testid="stTabs"] [aria-selected="true"] {
+        color: var(--jg-primary);
+    }
+
+    /* ---------- Sidebar ---------- */
+    [data-testid="stSidebar"] {
+        background: #FFFFFF;
+        border-right: 1px solid var(--jg-border);
+    }
+    [data-testid="stSidebar"] .block-container {
+        padding-top: 1.5rem;
+    }
+    .brand-box {
+        background: linear-gradient(135deg, #4F46E5 0%, #6366F1 55%, #8B5CF6 100%);
+        border-radius: 16px;
+        padding: 18px 18px 16px;
+        color: #FFFFFF;
+        margin-bottom: 4px;
+        box-shadow: 0 12px 30px -14px rgba(79, 70, 229, 0.7);
+    }
+    .brand-title {
+        font-size: 1.25rem;
+        font-weight: 750;
+        letter-spacing: -0.01em;
+        margin: 0;
+    }
+    .brand-sub {
+        font-size: 0.8rem;
+        opacity: 0.9;
+        margin-top: 4px;
+        line-height: 1.4;
+    }
+    [data-testid="stSidebar"] [role="radiogroup"] {
+        gap: 4px;
+    }
+    [data-testid="stSidebar"] [role="radiogroup"] label {
+        border-radius: 10px;
+        padding: 8px 10px;
+        transition: background 0.15s ease;
+    }
+    [data-testid="stSidebar"] [role="radiogroup"] label:hover {
+        background: var(--jg-primary-soft);
+    }
+
+    .section-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin: 0.4rem 0 0.8rem;
     }
 </style>
 """, unsafe_allow_html=True)
+
+
+# -----------------------------------------------------------------------------
+# EVIDENCE COMPARISON RENDERING HELPERS
+# -----------------------------------------------------------------------------
+_FIELD_LABELS = {
+    "deed_no": "Deed No",
+    "plot_id": "Plot ID",
+    "registration_date": "Registration Date",
+    "seller_nid": "Seller NID",
+    "seller_name": "Seller Name",
+    "buyer_nid": "Buyer NID",
+    "buyer_name": "Buyer Name",
+    "transferred_area_decimals": "Transferred Area (dec)",
+    "deed_value_bdt": "Deed Value (BDT)",
+    "sub_registry_office": "Sub-Registry Office",
+    "status": "Status",
+    "created_at": "Recorded At",
+    "name": "Name",
+    "nid": "NID",
+    "mutation_case_no": "Mutation Case No",
+    "mutation_date": "Mutation Date",
+    "applicant_name": "Applicant Name",
+    "applicant_nid": "Applicant NID",
+    "mutated_area_decimals": "Mutated Area (dec)",
+    "new_khatian_no": "New Khatian No",
+    "ac_land_office": "AC Land Office",
+    "approved_by": "Approved By",
+    "remarks": "Remarks",
+    "deed_registration_date": "Deed Registration Date",
+    "days_preceding_deed": "Days Preceding Deed",
+    "seller_recorded_balance": "Seller Recorded Balance (dec)",
+    "attempted_transfer": "Attempted Transfer (dec)",
+    "registry_lookup_result": "Registry Lookup Result",
+    "verified_owners_at_execution": "Verified Owners at Execution",
+    "variance": "Variance",
+    "conflict_type": "Conflict Type",
+    "days_between_sales": "Days Between Sales",
+    "deed_buyer_name": "Deed Buyer Name",
+    "deed_buyer_nid": "Deed Buyer NID",
+    "mutation_applicant_name": "Mutation Applicant Name",
+    "mutation_applicant_nid": "Mutation Applicant NID",
+    "name_match": "Name Match",
+    "nid_match": "NID Match",
+    "deed_transferred_area_decimals": "Deed Transferred Area (dec)",
+    "mutation_approved_area_decimals": "Mutation Approved Area (dec)",
+    "available_balance_decimals": "Available Balance (dec)",
+    "excess_area_decimals": "Excess Area (dec)",
+    "discrepancy_decimals": "Discrepancy (dec)",
+    "discrepancy_percentage": "Discrepancy (%)",
+    "anomaly_type": "Anomaly Type",
+    "cited_deed_no": "Cited Deed No",
+    "deed_2_no": "Second Deed No",
+    "deed_2_date": "Second Deed Date",
+    "deed_2_buyer": "Second Deed Buyer",
+    "deed_2_area_decimals": "Second Deed Area (dec)",
+    "deed_1_no": "First Deed No",
+    "deed_1_date": "First Deed Date",
+    "deed_1_buyer": "First Deed Buyer",
+    "deed_1_area_decimals": "First Deed Area (dec)",
+    "plot_initial_owner": "Plot Initial Owner",
+    "plot_initial_owner_nid": "Plot Initial Owner NID",
+    "inversion_days": "Chronological Inversion (days)",
+    "direction": "Direction",
+    "recipient_name": "Recipient Name",
+    "recipient_nid": "Recipient NID",
+}
+
+
+def _pretty_field(key):
+    return _FIELD_LABELS.get(key, str(key).replace("_", " ").title())
+
+
+def _pretty_value(value):
+    if value is None or value == "":
+        return '<span class="cmp-empty">—</span>'
+    if isinstance(value, bool):
+        return html.escape(str(value))
+    if isinstance(value, (int, float)):
+        if isinstance(value, float) and not value.is_integer():
+            return f"{value:,.2f}"
+        return f"{int(value):,}"
+    return html.escape(str(value))
+
+
+def render_comparison_table(left, right, left_title, right_title):
+    """Render a clean field-by-field comparison with differing rows highlighted."""
+    left = left or {}
+    right = right or {}
+
+    ordered_keys = list(left.keys())
+    ordered_keys += [k for k in right.keys() if k not in left]
+
+    rows_html = []
+    for key in ordered_keys:
+        in_left = key in left
+        in_right = key in right
+        is_diff = in_left and in_right and str(left[key]) != str(right[key])
+
+        left_cell = _pretty_value(left[key]) if in_left else '<span class="cmp-empty">—</span>'
+        right_cell = _pretty_value(right[key]) if in_right else '<span class="cmp-empty">—</span>'
+
+        row_class = "cmp-row is-diff" if is_diff else "cmp-row"
+        rows_html.append(f"""
+        <div class="{row_class}">
+            <div class="cmp-field">{html.escape(_pretty_field(key))}</div>
+            <div class="cmp-cell">{left_cell}</div>
+            <div class="cmp-cell">{right_cell}</div>
+        </div>""")
+
+    anchor_left = html.escape(str(left.get("deed_no") or left.get("mutation_case_no") or "Record A"))
+    anchor_right = html.escape(str(right.get("deed_no") or right.get("mutation_case_no") or "Record B"))
+
+    st.markdown(f"""
+    <div class="cmp-table">
+        <div class="cmp-grid cmp-head">
+            <div>Field</div>
+            <div class="cmp-col-left">{html.escape(left_title)} · <code>{anchor_left}</code></div>
+            <div class="cmp-col-right">{html.escape(right_title)} · <code>{anchor_right}</code></div>
+        </div>
+        <div class="cmp-grid">{''.join(rows_html)}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def _flatten_record(data, prefix=""):
+    """Flatten a record (with nested dicts/lists) into ordered label -> value items."""
+    items = []
+    for key, value in data.items():
+        label = _pretty_field(key)
+        if isinstance(value, dict):
+            label = _FIELD_LABELS.get(prefix + key, label)
+            for sub_key, sub_val in value.items():
+                items.append((_pretty_field(sub_key), sub_val))
+        elif isinstance(value, (list, tuple)):
+            items.append((label, ", ".join(str(v) for v in value)))
+        else:
+            items.append((label, value))
+    return items
+
+
+def render_record_table(data, title="Evidence Record"):
+    """Render a single record as a clean Field / Value table."""
+    rows_html = []
+    for label, value in _flatten_record(data):
+        rows_html.append(f"""
+        <div class="cmp-row">
+            <div class="cmp-field">{html.escape(str(label))}</div>
+            <div class="cmp-cell">{_pretty_value(value)}</div>
+        </div>""")
+
+    st.markdown(f"""
+    <div class="cmp-table single">
+        <div class="cmp-grid cmp-head">
+            <div>Field</div>
+            <div class="cmp-col-right">{html.escape(title)}</div>
+        </div>
+        <div class="cmp-grid">{''.join(rows_html)}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+_TRIGGER_FLAG_KEYS = (
+    "discrepancy", "excess", "inversion", "days_between",
+    "days_preceding", "variance", "defect", "mismatch",
+)
+
+
+def render_trigger_fields(trigger_data):
+    """Render triggered fields as a clean, color-coded fact grid."""
+    if not trigger_data:
+        st.info("No trigger fields were recorded for this alert.")
+        return
+
+    items_html = []
+    for key, value in trigger_data.items():
+        label = html.escape(_pretty_field(key))
+
+        if isinstance(value, bool):
+            cls = "tf-item tf-ok" if value else "tf-item tf-flag"
+            display = "Yes" if value else "No"
+        else:
+            cls = "tf-item"
+            if any(flag in str(key).lower() for flag in _TRIGGER_FLAG_KEYS):
+                cls += " tf-warn"
+            display = _pretty_value(value)
+
+        items_html.append(
+            f'<div class="{cls}">'
+            f'<div class="tf-label" title="{label}">{label}</div>'
+            f'<div class="tf-value">{display}</div>'
+            f'</div>'
+        )
+
+    st.markdown(f'<div class="tf-grid">{"".join(items_html)}</div>', unsafe_allow_html=True)
 
 
 # Initialize Database and Run Detector once
@@ -125,24 +734,29 @@ if "last_scan_metrics" not in st.session_state:
 # SIDEBAR
 # -----------------------------------------------------------------------------
 with st.sidebar:
-    st.markdown("## 🛡️ JomiGuard")
-    st.markdown("**Land Fraud & Double-Selling Alert System**")
-    st.caption("Data Analytics & Rule-Based Anomaly Detection")
-    st.markdown("---")
+    st.markdown("""
+    <div class="brand-box">
+        <p class="brand-title">🛡️ JomiGuard</p>
+        <p class="brand-sub">Land Fraud & Double-Selling Alert System</p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.caption("Rule-based anomaly detection & explainable risk screening")
+    st.markdown("")
     
     nav_option = st.radio(
-        "Navigation Menu",
+        "Navigation",
         [
             "📊 Dashboard Overview",
             "🚨 Alerts & Risk Investigation",
             "🔍 Searchable Plot History",
             "🧪 Interactive Demo & Sandbox",
             "📑 Downloadable Reports"
-        ]
+        ],
+        label_visibility="collapsed"
     )
     
     st.markdown("---")
-    st.markdown("### ⚙️ Quick Actions")
+    st.markdown("##### ⚙️ Quick Actions")
     
     if st.button("🔄 Re-run Anomaly Scan", use_container_width=True):
         alerts, summary = run_detection(DEFAULT_DB_PATH)
@@ -157,7 +771,7 @@ with st.sidebar:
         st.info("Database reset to original clean benchmark seed.")
         st.rerun()
         
-    st.markdown("---")
+    st.markdown("")
     st.caption("JomiGuard Land Prototype v1.0 • SQLite Engine")
 
 
@@ -183,18 +797,42 @@ if nav_option == "📊 Dashboard Overview":
     alerts_df = get_all_alerts(DEFAULT_DB_PATH)
     
     # Metrics Strip
+    critical_count = len(alerts_df[alerts_df["severity"] == "CRITICAL"]) if not alerts_df.empty else 0
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("Total Plots Screened", len(plots_df))
+        st.markdown(f"""
+        <div class="kpi-card">
+            <div class="kpi-label">Total Plots Screened</div>
+            <div class="kpi-value">{len(plots_df)}</div>
+            <div class="kpi-foot">Parcels under integrity review</div>
+        </div>
+        """, unsafe_allow_html=True)
     with col2:
-        st.metric("Total Registered Deeds", len(deeds_df))
+        st.markdown(f"""
+        <div class="kpi-card">
+            <div class="kpi-label">Registered Deeds</div>
+            <div class="kpi-value">{len(deeds_df)}</div>
+            <div class="kpi-foot">Sub-Registry sale records</div>
+        </div>
+        """, unsafe_allow_html=True)
     with col3:
-        st.metric("Total Approved Mutations", len(mutations_df))
+        st.markdown(f"""
+        <div class="kpi-card">
+            <div class="kpi-label">Approved Mutations</div>
+            <div class="kpi-value">{len(mutations_df)}</div>
+            <div class="kpi-foot">AC Land revenue transfers</div>
+        </div>
+        """, unsafe_allow_html=True)
     with col4:
-        critical_count = len(alerts_df[alerts_df["severity"] == "CRITICAL"]) if not alerts_df.empty else 0
-        st.metric("Active Inconsistencies", len(alerts_df), delta=f"{critical_count} Critical", delta_color="inverse")
+        st.markdown(f"""
+        <div class="kpi-card">
+            <div class="kpi-label">Active Inconsistencies</div>
+            <div class="kpi-value">{len(alerts_df)}</div>
+            <div class="kpi-foot">{critical_count} flagged critical</div>
+        </div>
+        """, unsafe_allow_html=True)
         
-    st.markdown("---")
+    st.markdown("")
     
     # Charts Row
     ch_col1, ch_col2 = st.columns(2)
@@ -246,8 +884,8 @@ if nav_option == "📊 Dashboard Overview":
         else:
             st.info("No active inconsistencies detected.")
 
-    st.markdown("---")
-    st.subheader("🚨 Priority Inconsistency Ledger")
+    st.markdown("")
+    st.markdown('<div class="section-title">🚨 Priority Inconsistency Ledger</div>', unsafe_allow_html=True)
     
     if not alerts_df.empty:
         display_df = alerts_df[[
@@ -307,7 +945,7 @@ elif nav_option == "🚨 Alerts & Risk Investigation":
     if filter_plot:
         alerts_df = alerts_df[alerts_df["plot_id"].str.contains(filter_plot, na=False)]
         
-    st.markdown(f"**Showing {len(alerts_df)} flagged record(s)**")
+    st.markdown(f"<span style='color:#64748B;font-size:0.9rem;'>Showing <strong style='color:#0F172A;'>{len(alerts_df)}</strong> flagged record(s)</span>", unsafe_allow_html=True)
     
     if alerts_df.empty:
         st.info("No alerts match the selected criteria.")
@@ -340,41 +978,36 @@ elif nav_option == "🚨 Alerts & Risk Investigation":
                 
                 # Highlighted Trigger Fields Card
                 st.markdown("#### 🔍 Specific Fields That Triggered This Alert")
-                st.markdown('<div class="trigger-box">', unsafe_allow_html=True)
-                
-                # Format trigger fields nicely
-                cols = st.columns(min(len(trigger_data), 3) if trigger_data else 1)
-                t_items = list(trigger_data.items())
-                for i, (k, v) in enumerate(t_items):
-                    c_idx = i % min(len(trigger_data), 3)
-                    with cols[c_idx]:
-                        label = k.replace("_", " ").title()
-                        st.markdown(f"**{label}**")
-                        st.code(str(v), language="text")
-                st.markdown('</div>', unsafe_allow_html=True)
+                render_trigger_fields(trigger_data)
                 
                 # Side-by-side Evidence Comparison
                 st.markdown("#### ⚖️ Conflicting Records Side-by-Side")
                 if "first_deed" in evidence_data and "second_deed" in evidence_data:
                     # Double-Selling comparison
-                    c_left, c_right = st.columns(2)
-                    with c_left:
-                        st.markdown("**Prior Registered Deed**")
-                        st.json(evidence_data["first_deed"])
-                    with c_right:
-                        st.markdown("**Subsequent Conflicting Deed**")
-                        st.json(evidence_data["second_deed"])
+                    render_comparison_table(
+                        evidence_data["first_deed"],
+                        evidence_data["second_deed"],
+                        "Prior Registered Deed",
+                        "Subsequent Conflicting Deed"
+                    )
                 elif "deed_record" in evidence_data and "mutation_record" in evidence_data:
                     # Deed vs Mutation comparison
-                    c_left, c_right = st.columns(2)
-                    with c_left:
-                        st.markdown("**Registered Sale Deed**")
-                        st.json(evidence_data["deed_record"])
-                    with c_right:
-                        st.markdown("**Revenue Mutation Record**")
-                        st.json(evidence_data["mutation_record"])
+                    render_comparison_table(
+                        evidence_data["deed_record"],
+                        evidence_data["mutation_record"],
+                        "Registered Sale Deed",
+                        "Revenue Mutation Record"
+                    )
+                elif "deed_party" in evidence_data and "mutation_party" in evidence_data:
+                    # Identity mismatch comparison
+                    render_comparison_table(
+                        evidence_data["deed_party"],
+                        evidence_data["mutation_party"],
+                        "Registered Deed Buyer",
+                        "Mutation Applicant"
+                    )
                 else:
-                    st.json(evidence_data)
+                    render_record_table(evidence_data, "Flagged Evidence Payload")
                     
                 st.markdown("---")
                 
@@ -429,7 +1062,7 @@ elif nav_option == "🔍 Searchable Plot History":
     if matched_plots.empty:
         st.warning("No plots found matching your search query.")
     else:
-        st.markdown(f"**Found {len(matched_plots)} plot(s)**")
+        st.markdown(f"<span style='color:#64748B;font-size:0.9rem;'>Found <strong style='color:#0F172A;'>{len(matched_plots)}</strong> plot(s)</span>", unsafe_allow_html=True)
         selected_plot_id = st.selectbox(
             "Select Plot to Inspect Detailed Chain of Title",
             options=matched_plots["plot_id"].tolist(),
@@ -443,20 +1076,40 @@ elif nav_option == "🔍 Searchable Plot History":
             plot_alerts = plot_alerts[plot_alerts["plot_id"] == selected_plot_id]
             
         # Plot Details Cards
-        st.markdown("### 🗺️ Plot Registry Master Record")
+        st.markdown('<div class="section-title">🗺️ Plot Registry Master Record</div>', unsafe_allow_html=True)
         p_c1, p_c2, p_c3, p_c4 = st.columns(4)
         with p_c1:
-            st.metric("Mouza & JL", f"{plot_info['mouza']} (JL: {plot_info['jl_no']})")
-            st.caption(f"Thana/Upazila: {plot_info['upazila']}")
+            st.markdown(f"""
+            <div class="record-card">
+                <div class="record-label">Mouza & JL</div>
+                <div class="record-value">{plot_info['mouza']} · JL {plot_info['jl_no']}</div>
+                <div class="record-foot">Thana/Upazila: {plot_info['upazila']}</div>
+            </div>
+            """, unsafe_allow_html=True)
         with p_c2:
-            st.metric("Dag & Khatian", f"Dag: {plot_info['dag_no']}")
-            st.caption(f"Khatian: {plot_info['khatian_no']}")
+            st.markdown(f"""
+            <div class="record-card">
+                <div class="record-label">Dag & Khatian</div>
+                <div class="record-value">Dag {plot_info['dag_no']}</div>
+                <div class="record-foot">Khatian: {plot_info['khatian_no']}</div>
+            </div>
+            """, unsafe_allow_html=True)
         with p_c3:
-            st.metric("Total Land Area", f"{plot_info['total_area_decimals']} Decimals")
-            st.caption(f"Classification: {plot_info['land_type']}")
+            st.markdown(f"""
+            <div class="record-card">
+                <div class="record-label">Total Land Area</div>
+                <div class="record-value">{plot_info['total_area_decimals']} Decimals</div>
+                <div class="record-foot">Classification: {plot_info['land_type']}</div>
+            </div>
+            """, unsafe_allow_html=True)
         with p_c4:
-            st.metric("Initial Recorded Owner", plot_info["initial_owner_name"])
-            st.caption(f"NID: {plot_info['initial_owner_nid']}")
+            st.markdown(f"""
+            <div class="record-card">
+                <div class="record-label">Initial Recorded Owner</div>
+                <div class="record-value">{plot_info['initial_owner_name']}</div>
+                <div class="record-foot">NID: {plot_info['initial_owner_nid']}</div>
+            </div>
+            """, unsafe_allow_html=True)
             
         # Alert warning if plot has flags
         if not plot_alerts.empty:
@@ -469,7 +1122,7 @@ elif nav_option == "🔍 Searchable Plot History":
         st.markdown("---")
         
         # Interactive Plotly Visual Timeline
-        st.markdown("### 📈 Visual Transaction & Ownership Timeline")
+        st.markdown('<div class="section-title">📈 Visual Transaction & Ownership Timeline</div>', unsafe_allow_html=True)
         
         timeline_events = []
         
@@ -500,34 +1153,54 @@ elif nav_option == "🔍 Searchable Plot History":
                 "Color": "#8B5CF6"
             })
             
-        df_timeline = pd.DataFrame(timeline_events).sort_values("Date")
-        
+        df_timeline = pd.DataFrame(timeline_events).sort_values("Date").reset_index(drop=True)
+        df_timeline["Index"] = df_timeline.index + 1
+
         fig = go.Figure()
-        
-        # Scatter line for chronological flow
+
+        # Scatter line for chronological flow — numbered markers avoid label overlap
         fig.add_trace(go.Scatter(
             x=df_timeline["Date"],
             y=[1] * len(df_timeline),
             mode="lines+markers+text",
-            text=df_timeline["Event"],
-            textposition="top center",
+            text=[str(i) for i in df_timeline["Index"]],
+            textposition="middle center",
+            textfont=dict(color="#FFFFFF", size=10, family="Arial, sans-serif"),
             marker=dict(
-                size=14,
-                color=df_timeline["Color"]
+                size=30,
+                color=df_timeline["Color"],
+                line=dict(color="#FFFFFF", width=2),
             ),
             line=dict(color="#CBD5E1", width=3),
             hoverinfo="text",
-            hovertext=[f"Date: {r['Date']}<br>Type: {r['Type']}<br>Area: {r['Area']}" for _, r in df_timeline.iterrows()]
+            hovertext=[
+                f"<b>#{r['Index']} · {r['Type']}</b><br>{r['Event']}<br>Date: {r['Date']} · Area: {r['Area']}"
+                for _, r in df_timeline.iterrows()
+            ]
         ))
-        
+
         fig.update_layout(
-            height=280,
-            xaxis=dict(title="Transaction Date", showgrid=True),
-            yaxis=dict(showticklabels=False, range=[0.5, 1.6], showgrid=False),
-            margin=dict(l=20, r=20, t=30, b=30),
-            showlegend=False
+            height=200,
+            xaxis=dict(title="Transaction Date", showgrid=True, tickfont=dict(size=11)),
+            yaxis=dict(showticklabels=False, range=[0.6, 1.4], showgrid=False),
+            margin=dict(l=20, r=20, t=20, b=30),
+            showlegend=False,
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
         )
         st.plotly_chart(fig, use_container_width=True)
+
+        # Event legend (keeps timeline readable without overlapping labels)
+        legend_html = "".join(
+            f'<div class="tl-item">'
+            f'<span class="tl-dot" style="background:{r.Color}"></span>'
+            f'<span class="tl-idx">{r.Index}</span>'
+            f'<span class="tl-date">{r.Date}</span>'
+            f'<span class="tl-event">{html.escape(str(r.Event))}</span>'
+            f'</div>'
+            for r in df_timeline.itertuples()
+        )
+        st.markdown(f'<div class="tl-legend">{legend_html}</div>', unsafe_allow_html=True)
         
         st.markdown("---")
         
@@ -714,30 +1387,32 @@ elif nav_option == "📑 Downloadable Reports":
     rep_col1, rep_col2 = st.columns(2)
     
     with rep_col1:
-        st.markdown("### 📥 Export Alerts Ledger (CSV)")
-        st.write("Tabular export of all flagged alerts, severity scores, and triage notes.")
-        csv_data = export_alerts_to_csv(alerts_df)
-        st.download_button(
-            label="Download Alerts Ledger (CSV)",
-            data=csv_data,
-            file_name=f"jomiguard_alerts_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
+        with st.container(border=True):
+            st.markdown('<div class="section-title">📥 Export Alerts Ledger (CSV)</div>', unsafe_allow_html=True)
+            st.write("Tabular export of all flagged alerts, severity scores, and triage notes.")
+            csv_data = export_alerts_to_csv(alerts_df)
+            st.download_button(
+                label="Download Alerts Ledger (CSV)",
+                data=csv_data,
+                file_name=f"jomiguard_alerts_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
         
     with rep_col2:
-        st.markdown("### 📄 Export Investigation Report (Markdown)")
-        st.write("Comprehensive formal inspection report including executive summary, case dossiers, and officer sign-off.")
-        md_report = generate_markdown_audit_report(alerts_df, summary_metrics)
-        st.download_button(
-            label="Download Formal Report (.md)",
-            data=md_report,
-            file_name=f"jomiguard_investigation_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
-            mime="text/markdown",
-            use_container_width=True,
-            type="primary"
-        )
+        with st.container(border=True):
+            st.markdown('<div class="section-title">📄 Export Investigation Report (Markdown)</div>', unsafe_allow_html=True)
+            st.write("Comprehensive formal inspection report including executive summary, case dossiers, and officer sign-off.")
+            md_report = generate_markdown_audit_report(alerts_df, summary_metrics)
+            st.download_button(
+                label="Download Formal Report (.md)",
+                data=md_report,
+                file_name=f"jomiguard_investigation_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
+                mime="text/markdown",
+                use_container_width=True,
+                type="primary"
+            )
         
-    st.markdown("---")
-    st.markdown("### 👁️ Report Preview")
+    st.markdown("")
+    st.markdown('<div class="section-title">👁️ Report Preview</div>', unsafe_allow_html=True)
     st.markdown(md_report)

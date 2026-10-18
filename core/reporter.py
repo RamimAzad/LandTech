@@ -9,6 +9,84 @@ from typing import Dict, List, Any
 import pandas as pd
 
 
+_FIELD_LABELS = {
+    "deed_no": "Deed No",
+    "plot_id": "Plot ID",
+    "registration_date": "Registration Date",
+    "seller_nid": "Seller NID",
+    "seller_name": "Seller Name",
+    "buyer_nid": "Buyer NID",
+    "buyer_name": "Buyer Name",
+    "transferred_area_decimals": "Transferred Area (dec)",
+    "deed_value_bdt": "Deed Value (BDT)",
+    "sub_registry_office": "Sub-Registry Office",
+    "status": "Status",
+    "created_at": "Recorded At",
+    "name": "Name",
+    "nid": "NID",
+    "mutation_case_no": "Mutation Case No",
+    "mutation_date": "Mutation Date",
+    "applicant_name": "Applicant Name",
+    "applicant_nid": "Applicant NID",
+    "mutated_area_decimals": "Mutated Area (dec)",
+    "new_khatian_no": "New Khatian No",
+    "ac_land_office": "AC Land Office",
+    "deed_registration_date": "Deed Registration Date",
+    "days_preceding_deed": "Days Preceding Deed",
+    "seller_recorded_balance": "Seller Recorded Balance (dec)",
+    "attempted_transfer": "Attempted Transfer (dec)",
+    "deed_buyer_name": "Deed Buyer Name",
+    "deed_buyer_nid": "Deed Buyer NID",
+    "mutation_applicant_name": "Mutation Applicant Name",
+    "mutation_applicant_nid": "Mutation Applicant NID",
+    "name_match": "Name Match",
+    "nid_match": "NID Match",
+    "deed_transferred_area_decimals": "Deed Transferred Area (dec)",
+    "mutation_approved_area_decimals": "Mutation Approved Area (dec)",
+    "available_balance_decimals": "Available Balance (dec)",
+    "excess_area_decimals": "Excess Area (dec)",
+    "discrepancy_decimals": "Discrepancy (dec)",
+    "discrepancy_percentage": "Discrepancy (%)",
+    "anomaly_type": "Anomaly Type",
+    "cited_deed_no": "Cited Deed No",
+    "deed_1_no": "First Deed No",
+    "deed_1_date": "First Deed Date",
+    "deed_1_buyer": "First Deed Buyer",
+    "deed_1_area_decimals": "First Deed Area (dec)",
+    "deed_2_no": "Second Deed No",
+    "deed_2_date": "Second Deed Date",
+    "deed_2_buyer": "Second Deed Buyer",
+    "deed_2_area_decimals": "Second Deed Area (dec)",
+    "plot_initial_owner": "Plot Initial Owner",
+    "plot_initial_owner_nid": "Plot Initial Owner NID",
+    "inversion_days": "Chronological Inversion (days)",
+    "days_between_sales": "Days Between Sales",
+}
+
+
+def _format_trigger_value(value: Any) -> str:
+    """Render a trigger field value as clean, table-safe text."""
+    if isinstance(value, bool):
+        return "Yes" if value else "No"
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        if isinstance(value, float) and not value.is_integer():
+            return f"{value:,.2f}"
+        return f"{int(value):,}"
+    return str(value).replace("|", "\\|").replace("\n", " ")
+
+
+def _format_trigger_table(trigger_fields: Dict[str, Any]) -> str:
+    """Build a clean Markdown table for the triggered fields (no raw JSON)."""
+    if not trigger_fields:
+        return "_No trigger fields were recorded for this alert._\n"
+
+    lines = ["| Triggered Field | Value |", "| :--- | :--- |"]
+    for key, value in trigger_fields.items():
+        label = _FIELD_LABELS.get(key, str(key).replace("_", " ").title())
+        lines.append(f"| {label} | `{_format_trigger_value(value)}` |")
+    return "\n".join(lines) + "\n"
+
+
 def export_alerts_to_csv(alerts_df: pd.DataFrame) -> str:
     """Converts alerts dataframe to CSV string for download."""
     if alerts_df.empty:
@@ -115,9 +193,8 @@ def generate_markdown_audit_report(
 {explanation}
 
 **Specific Trigger Fields:**
-```json
-{json.dumps(trigger_fields, indent=2, ensure_ascii=False)}
-```
+
+{_format_trigger_table(trigger_fields)}
 
 **Recommended Human Investigation Action:**
 1. Summon Sub-Registry Office Volume Register Book for cited Deed(s).
